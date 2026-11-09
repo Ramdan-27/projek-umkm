@@ -1,0 +1,2250 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kopi Jalanan - UMKM Coffee Street Platform</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              coffee: {
+                50: "#FDFBF7",
+                100: "#FAF6F0",
+                200: "#F0E6D8",
+                300: "#E1D0B7",
+                400: "#C7A782",
+                500: "#A67C52",
+                600: "#8C6239",
+                700: "#6F4B27",
+                800: "#4A321A",
+                900: "#2C1810",
+                950: "#1A0E09",
+              },
+              gofood: "#00AA13",
+              gofoodDark: "#00880F",
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', "sans-serif"],
+              serif: ['"Playfair Display"', "serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #faf6f0;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #c7a782;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a67c52;
+      }
+
+      /* Glassmorphism utility */
+      .glass-panel {
+        background: rgba(250, 246, 240, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(199, 167, 130, 0.25);
+      }
+
+      .glass-dark {
+        background: rgba(44, 24, 16, 0.88);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(199, 167, 130, 0.2);
+      }
+
+      /* Pulse Badge Animation */
+      @keyframes pulse-subtle {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+      .animate-pulse-subtle {
+        animation: pulse-subtle 2s infinite ease-in-out;
+      }
+
+      /* Print Receipt Specific CSS */
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #printable-receipt,
+        #printable-receipt * {
+          visibility: visible;
+        }
+        #printable-receipt {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          background: white !important;
+          color: black !important;
+          padding: 20px;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-coffee-100 text-coffee-900 font-sans antialiased selection:bg-coffee-400 selection:text-white min-h-screen flex flex-col"
+  >
+    <header
+      class="sticky top-0 z-40 glass-panel border-b border-coffee-200/80 transition-all duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+          <!-- Logo & Brand -->
+          <div
+            class="flex items-center gap-3 cursor-pointer"
+            onclick="switchView('customer')"
+          >
+            <div
+              class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-coffee-800 to-coffee-600 flex items-center justify-center text-white shadow-md shadow-coffee-900/20 group"
+            >
+              <i
+                class="fa-solid fa-mug-hot text-xl group-hover:rotate-12 transition-transform duration-300"
+              ></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1
+                  class="font-serif font-extrabold text-xl sm:text-2xl tracking-tight text-coffee-900"
+                >
+                  Kopi Jalanan
+                </h1>
+                <span
+                  class="bg-coffee-200 text-coffee-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-coffee-300"
+                  >UMKM</span
+                >
+              </div>
+              <p class="text-xs text-coffee-600 font-medium hidden sm:block">
+                Seduh Cita Rasa Bintang Lima di Pinggir Jalan
+              </p>
+            </div>
+          </div>
+
+          <!-- Navigation Links & Action Buttons -->
+          <div class="flex items-center gap-3 sm:gap-4">
+            <!-- GoFood Quick Link Badge -->
+            <a
+              href="https://gofood.co.id"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hidden md:flex items-center gap-2 bg-gofood text-white px-3.5 py-1.5 rounded-full text-xs font-semibold hover:bg-gofoodDark transition-colors shadow-sm shadow-gofood/30 group"
+            >
+              <i
+                class="fa-solid fa-motorcycle text-sm group-hover:translate-x-1 transition-transform"
+              ></i>
+              <span>Order GoFood</span>
+            </a>
+
+            <!-- Admin / Customer View Mode Switcher -->
+            <button
+              onclick="toggleAdminMode()"
+              id="viewModeBtn"
+              class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border border-coffee-300 bg-white hover:bg-coffee-50 text-coffee-800 shadow-sm transition-all"
+            >
+              <i class="fa-solid fa-user-gear text-coffee-600"></i>
+              <span id="viewModeText">Mode Kasir/Admin</span>
+            </button>
+
+            <!-- Shopping Cart Button with Floating Badge -->
+            <button
+              onclick="openCartDrawer()"
+              class="relative bg-coffee-800 hover:bg-coffee-900 text-white p-3 rounded-2xl shadow-lg shadow-coffee-900/20 transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2.5"
+            >
+              <i class="fa-solid fa-basket-shopping text-lg"></i>
+              <span
+                class="hidden sm:inline font-semibold text-xs border-l border-coffee-600 pl-2.5"
+                id="cartHeaderTotal"
+                >Rp 0</span
+              >
+              <span
+                id="cartBadgeCount"
+                class="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-coffee-100 shadow-md"
+                >0</span
+              >
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow">
+      <!-- ================================================================= -->
+      <!-- CUSTOMER VIEW SECTION                                             -->
+      <!-- ================================================================= -->
+      <div id="customerView" class="block">
+        <!-- Hero Banner & GoFood Promo Integration -->
+        <section
+          class="relative bg-coffee-900 text-white py-12 lg:py-16 overflow-hidden"
+        >
+          <div
+            class="absolute inset-0 opacity-15 bg-[radial-gradient(#C7A782_1px,transparent_1px)] [background-size:16px_16px]"
+          ></div>
+
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <!-- Left Hero Content -->
+              <div class="lg:col-span-7 space-y-5 text-center lg:text-left">
+                <div
+                  class="inline-flex items-center gap-2 bg-coffee-800/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-coffee-600/50 text-xs text-coffee-200"
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"
+                  ></span>
+                  <span class="font-medium"
+                    >Buka Hari Ini: 08.00 - 22.00 WIB</span
+                  >
+                </div>
+
+                <h2
+                  class="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-coffee-50"
+                >
+                  Nikmati Kopi Otentik <br />
+                  <span class="text-amber-400 italic"
+                    >Harga Pinggiran, Rasa Bintang Lima</span
+                  >
+                </h2>
+
+                <p
+                  class="text-coffee-200 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed font-light"
+                >
+                  Kami meracik setiap cangkir kopi dari biji kopi lokal
+                  Indonesia pilihan. Pesan langsung untuk diambil/makan di
+                  tempat, atau order secara praktis via GoFood!
+                </p>
+
+                <!-- CTA Buttons -->
+                <div
+                  class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2"
+                >
+                  <a
+                    href="#menuSection"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-coffee-950 font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all hover:translate-y-[-2px]"
+                  >
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>Pesan Langsung Sekarang</span>
+                  </a>
+
+                  <button
+                    onclick="openGoFoodModal()"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gofood hover:bg-gofoodDark text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-gofood/20 transition-all hover:translate-y-[-2px]"
+                  >
+                    <i class="fa-solid fa-motorcycle text-lg"></i>
+                    <span>Buka di GoFood</span>
+                    <i
+                      class="fa-solid fa-arrow-up-right-from-square text-xs opacity-75"
+                    ></i>
+                  </button>
+                </div>
+
+                <!-- Trust Badges -->
+                <div
+                  class="pt-4 flex flex-wrap justify-center lg:justify-start gap-6 text-xs text-coffee-300 font-medium"
+                >
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-check-circle text-amber-400"></i>
+                    <span>100% Biji Kopi Lokal</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-amber-400"></i>
+                    <span>Bisa Bayar QRIS & GoPay</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                    <span>Penyajian Cepat</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Hero Feature Card / GoFood Banner -->
+              <div class="lg:col-span-5">
+                <div
+                  class="bg-gradient-to-br from-coffee-800 to-coffee-950 p-6 rounded-3xl border border-coffee-700/60 shadow-2xl relative overflow-hidden group"
+                >
+                  <div
+                    class="absolute -right-8 -bottom-8 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl"
+                  ></div>
+
+                  <div
+                    class="flex items-center justify-between border-b border-coffee-700/80 pb-4 mb-4"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="w-10 h-10 rounded-xl bg-gofood/20 flex items-center justify-center text-gofood font-bold text-xl"
+                      >
+                        <i class="fa-solid fa-bag-shopping"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-white text-sm">
+                          Promo Partner GoFood
+                        </h3>
+                        <p class="text-xs text-coffee-300">
+                          Diskon Khusus Pelanggan Setia
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      class="bg-red-500/20 text-red-300 border border-red-500/30 text-[10px] font-bold px-2 py-1 rounded-md uppercase"
+                      >Diskon 20%</span
+                    >
+                  </div>
+
+                  <div class="space-y-3 mb-5">
+                    <div
+                      class="bg-coffee-900/80 p-3 rounded-xl border border-coffee-800 flex items-center justify-between text-xs"
+                    >
+                      <span class="text-coffee-300">Kode Promo GoFood:</span>
+                      <span
+                        class="font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
+                        >KOPISTREET20</span
+                      >
+                    </div>
+                    <p class="text-xs text-coffee-300 leading-relaxed">
+                      Makin hemat dengan promo GoFood Everyday Deals. Klik
+                      tombol di bawah untuk langsung membuka menu toko kami di
+                      GoFood!
+                    </p>
+                  </div>
+
+                  <button
+                    onclick="openGoFoodModal()"
+                    class="w-full bg-white hover:bg-coffee-50 text-coffee-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <i class="fa-solid fa-external-link text-gofood"></i>
+                    <span>Lihat Menu Resmi di GoFood</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Menu Catalog & Filter Section -->
+        <section
+          id="menuSection"
+          class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
+        >
+          <!-- Section Title & Search -->
+          <div
+            class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8"
+          >
+            <div>
+              <div
+                class="flex items-center gap-2 text-coffee-600 font-bold text-xs uppercase tracking-wider mb-1"
+              >
+                <i class="fa-solid fa-mug-saucer"></i>
+                <span>Menu Pilihan Kami</span>
+              </div>
+              <h2
+                class="font-serif text-2xl sm:text-3xl font-bold text-coffee-900"
+              >
+                Daftar Menu & Harga
+              </h2>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative w-full md:w-72">
+              <input
+                type="text"
+                id="searchInput"
+                oninput="filterMenu()"
+                placeholder="Cari menu kopi atau snack..."
+                class="w-full bg-white border border-coffee-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500 focus:border-transparent shadow-sm"
+              />
+              <i
+                class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-coffee-400 text-sm"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Category Filters Bar -->
+          <div
+            class="flex items-center gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar"
+          >
+            <button
+              onclick="setCategory('all')"
+              id="cat-all"
+              class="category-btn active bg-coffee-800 text-white font-semibold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all"
+            >
+              ✨ Semua Menu (<span id="count-all">0</span>)
+            </button>
+            <button
+              onclick="setCategory('kopi')"
+              id="cat-kopi"
+              class="category-btn bg-white hover:bg-coffee-200/60 text-coffee-800 border border-coffee-200 font-semibold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all"
+            >
+              ☕ Kopi (Espresso & Milk) (<span id="count-kopi">0</span>)
+            </button>
+            <button
+              onclick="setCategory('non-kopi')"
+              id="cat-non-kopi"
+              class="category-btn bg-white hover:bg-coffee-200/60 text-coffee-800 border border-coffee-200 font-semibold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all"
+            >
+              🍵 Non-Kopi & Tea (<span id="count-non-kopi">0</span>)
+            </button>
+            <button
+              onclick="setCategory('makanan')"
+              id="cat-makanan"
+              class="category-btn bg-white hover:bg-coffee-200/60 text-coffee-800 border border-coffee-200 font-semibold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all"
+            >
+              🥐 Makanan Ringan / Snack (<span id="count-makanan">0</span>)
+            </button>
+          </div>
+
+          <!-- Dynamic Menu Cards Grid -->
+          <div
+            id="menuGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            <!-- Dynamic rendering via JavaScript -->
+          </div>
+
+          <!-- Empty Search State -->
+          <div
+            id="emptyMenuState"
+            class="hidden text-center py-16 bg-white/60 rounded-3xl border border-dashed border-coffee-300"
+          >
+            <div
+              class="w-16 h-16 bg-coffee-100 text-coffee-500 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl"
+            >
+              <i class="fa-solid fa-mug-hot"></i>
+            </div>
+            <h3 class="font-bold text-coffee-900 text-lg">
+              Menu Tidak Ditemukan
+            </h3>
+            <p class="text-xs text-coffee-600 mt-1">
+              Coba kata kunci pencarian lain atau pilih kategori berbeda.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- ADMIN DASHBOARD VIEW SECTION                                      -->
+      <!-- ================================================================= -->
+      <div
+        id="adminView"
+        class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+      >
+        <!-- Admin Top Title & Stat Cards -->
+        <div
+          class="bg-coffee-900 text-white rounded-3xl p-6 mb-8 shadow-xl relative overflow-hidden"
+        >
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-coffee-700/80 pb-6 mb-6"
+          >
+            <div>
+              <div class="flex items-center gap-2">
+                <span
+                  class="bg-amber-400 text-coffee-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase"
+                  >Panel Kasir & Dapur</span
+                >
+                <span class="text-xs text-coffee-300"
+                  >Sistem Manajemen UMKM</span
+                >
+              </div>
+              <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1">
+                Dashboard Kopi Jalanan
+              </h2>
+            </div>
+
+            <button
+              onclick="openAddMenuModal()"
+              class="bg-amber-500 hover:bg-amber-400 text-coffee-950 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2"
+            >
+              <i class="fa-solid fa-plus text-sm"></i>
+              <span>Tambah Menu Baru</span>
+            </button>
+          </div>
+
+          <!-- Quick Stats Grid -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div
+              class="bg-coffee-800/80 p-4 rounded-2xl border border-coffee-700"
+            >
+              <p class="text-xs text-coffee-300 font-medium">
+                Total Pesanan Masuk
+              </p>
+              <p
+                class="text-2xl font-extrabold text-amber-400 mt-1"
+                id="statTotalOrders"
+              >
+                0
+              </p>
+            </div>
+            <div
+              class="bg-coffee-800/80 p-4 rounded-2xl border border-coffee-700"
+            >
+              <p class="text-xs text-coffee-300 font-medium">
+                Estimasi Omset Hari Ini
+              </p>
+              <p
+                class="text-2xl font-extrabold text-emerald-400 mt-1"
+                id="statTotalRevenue"
+              >
+                Rp 0
+              </p>
+            </div>
+            <div
+              class="bg-coffee-800/80 p-4 rounded-2xl border border-coffee-700"
+            >
+              <p class="text-xs text-coffee-300 font-medium">
+                Pesanan Diproses
+              </p>
+              <p
+                class="text-2xl font-extrabold text-sky-400 mt-1"
+                id="statPendingOrders"
+              >
+                0
+              </p>
+            </div>
+            <div
+              class="bg-coffee-800/80 p-4 rounded-2xl border border-coffee-700"
+            >
+              <p class="text-xs text-coffee-300 font-medium">Menu Aktif Toko</p>
+              <p
+                class="text-2xl font-extrabold text-purple-300 mt-1"
+                id="statActiveMenuItems"
+              >
+                0
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Tabs Navigation -->
+        <div class="flex border-b border-coffee-200 mb-6">
+          <button
+            onclick="switchAdminTab('orders')"
+            id="tab-orders-btn"
+            class="py-3 px-6 text-sm font-bold border-b-2 border-coffee-800 text-coffee-900 flex items-center gap-2 transition-all"
+          >
+            <i class="fa-solid fa-list-check"></i>
+            <span>Antrean Pesanan Masuk</span>
+            <span
+              id="pendingBadge"
+              class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden"
+              >0</span
+            >
+          </button>
+          <button
+            onclick="switchAdminTab('menu')"
+            id="tab-menu-btn"
+            class="py-3 px-6 text-sm font-bold border-b-2 border-transparent text-coffee-600 hover:text-coffee-900 flex items-center gap-2 transition-all"
+          >
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Kelola Stok & Harga Menu</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Active Incoming Orders List -->
+        <div id="adminTabOrders" class="block space-y-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-coffee-900 text-lg">
+              Daftar Transaksi Real-Time
+            </h3>
+            <button
+              onclick="renderAdminOrders()"
+              class="text-xs text-coffee-600 hover:text-coffee-900 flex items-center gap-1 font-semibold"
+            >
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+
+          <div id="adminOrdersContainer" class="space-y-4">
+            <!-- Dynamic Orders List -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Menu Stock & Availability Manager -->
+        <div id="adminTabMenu" class="hidden">
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-coffee-200 overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-coffee-100 bg-coffee-50 flex items-center justify-between"
+            >
+              <h3 class="font-bold text-coffee-900 text-sm">
+                Daftar Inventaris Menu
+              </h3>
+              <span class="text-xs text-coffee-600"
+                >Gunakan toggle untuk mengubah status ketersediaan barang (Ready
+                / Habis)</span
+              >
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr
+                    class="bg-coffee-100/60 text-coffee-700 text-xs uppercase tracking-wider border-b border-coffee-200"
+                  >
+                    <th class="py-3 px-4">Menu</th>
+                    <th class="py-3 px-4">Kategori</th>
+                    <th class="py-3 px-4">Harga</th>
+                    <th class="py-3 px-4">Status Stok</th>
+                    <th class="py-3 px-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="adminMenuTable"
+                  class="divide-y divide-coffee-100 text-xs"
+                >
+                  <!-- Dynamic JS Menu Table Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer
+      class="bg-coffee-950 text-coffee-300 py-10 border-t border-coffee-800 mt-12"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <div
+                class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-coffee-950 font-bold"
+              >
+                <i class="fa-solid fa-mug-hot"></i>
+              </div>
+              <span class="font-serif font-bold text-white text-lg"
+                >Kopi Jalanan</span
+              >
+            </div>
+            <p class="text-xs text-coffee-400 leading-relaxed">
+              Inisiatif UMKM Kopi Lokal Indonesia. Menyediakan sajian kopi
+              espresso dan racikan minuman dengan harga bersahabat.
+            </p>
+          </div>
+
+          <div>
+            <h4
+              class="text-xs font-bold text-white uppercase tracking-wider mb-3"
+            >
+              Jam Operasional
+            </h4>
+            <ul class="text-xs space-y-1.5 text-coffee-400">
+              <li>Senin - Jumat: 08.00 - 22.00 WIB</li>
+              <li>Sabtu - Minggu: 08.00 - 23.00 WIB</li>
+              <li class="text-amber-400 pt-1 font-semibold">
+                📍 Jalan Pemuda No. 45, Surabaya
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4
+              class="text-xs font-bold text-white uppercase tracking-wider mb-3"
+            >
+              Partner Resmi
+            </h4>
+            <div class="flex items-center gap-3">
+              <button
+                onclick="openGoFoodModal()"
+                class="bg-gofood text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-gofoodDark transition-colors"
+              >
+                <i class="fa-solid fa-motorcycle"></i> GoFood Partner
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <h4
+              class="text-xs font-bold text-white uppercase tracking-wider mb-3"
+            >
+              Metode Pembayaran
+            </h4>
+            <p class="text-xs text-coffee-400 mb-2">
+              Mendukung pembayaran non-tunai modern:
+            </p>
+            <div class="flex flex-wrap gap-2 text-xs font-bold text-coffee-200">
+              <span
+                class="bg-coffee-900 px-2 py-1 rounded border border-coffee-800"
+                >QRIS</span
+              >
+              <span
+                class="bg-coffee-900 px-2 py-1 rounded border border-coffee-800"
+                >GoPay</span
+              >
+              <span
+                class="bg-coffee-900 px-2 py-1 rounded border border-coffee-800"
+                >Transfer Bank</span
+              >
+              <span
+                class="bg-coffee-900 px-2 py-1 rounded border border-coffee-800"
+                >Tunai</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="border-t border-coffee-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-coffee-500 gap-4"
+        >
+          <p>
+            &copy; 2026 Kopi Jalanan UMKM Indonesia. Dibuat untuk Kemajuan
+            Ekonomi Lokal.
+          </p>
+          <div class="flex items-center gap-4">
+            <span
+              class="hover:text-coffee-300 cursor-pointer"
+              onclick="toggleAdminMode()"
+              >Akses Mode Kasir</span
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div
+      id="cartDrawer"
+      class="fixed inset-0 z-50 overflow-hidden hidden"
+      aria-labelledby="slide-over-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="absolute inset-0 bg-coffee-950/60 backdrop-blur-sm transition-opacity"
+        onclick="closeCartDrawer()"
+      ></div>
+
+      <div
+        class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10"
+      >
+        <div
+          class="pointer-events-auto w-screen max-w-md bg-coffee-50 shadow-2xl flex flex-col"
+        >
+          <!-- Drawer Header -->
+          <div
+            class="p-5 bg-coffee-900 text-white flex items-center justify-between"
+          >
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-basket-shopping text-amber-400 text-lg"></i>
+              <h3 class="font-bold text-base">Keranjang Pesanan</h3>
+            </div>
+            <button
+              onclick="closeCartDrawer()"
+              class="text-coffee-300 hover:text-white p-1 rounded-lg"
+            >
+              <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Order Type Selection (Dine in vs Takeaway) -->
+          <div class="p-4 bg-white border-b border-coffee-200 flex gap-2">
+            <button
+              id="btnDineIn"
+              onclick="setOrderType('dine-in')"
+              class="flex-1 py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all bg-coffee-800 text-white border-coffee-800"
+            >
+              <i class="fa-solid fa-chair"></i>
+              <span>Makan di Tempat</span>
+            </button>
+            <button
+              id="btnTakeaway"
+              onclick="setOrderType('takeaway')"
+              class="flex-1 py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all bg-white text-coffee-800 border-coffee-300 hover:bg-coffee-50"
+            >
+              <i class="fa-solid fa-bag-shopping"></i>
+              <span>Bungkus / Takeaway</span>
+            </button>
+          </div>
+
+          <!-- Cart Items Scrollable Container -->
+          <div class="flex-1 overflow-y-auto p-4 space-y-4" id="cartItemsList">
+            <!-- Dynamic rendering via JS -->
+          </div>
+
+          <!-- Cart Footer & Checkout Button -->
+          <div
+            id="cartFooter"
+            class="p-5 bg-white border-t border-coffee-200 space-y-4"
+          >
+            <div class="space-y-1.5 text-xs">
+              <div class="flex justify-between text-coffee-600">
+                <span>Subtotal Menu</span>
+                <span font-mono font-semibold text-coffee-900 id="cartSubtotal"
+                  >Rp 0</span
+                >
+              </div>
+              <div class="flex justify-between text-coffee-600">
+                <span>Pajak & Layanan UMKM (0%)</span>
+                <span class="text-emerald-600 font-medium">GRATIS</span>
+              </div>
+              <div
+                class="flex justify-between text-base font-extrabold text-coffee-900 pt-2 border-t border-coffee-100"
+              >
+                <span>Total Pembayaran</span>
+                <span class="text-amber-600" id="cartTotal">Rp 0</span>
+              </div>
+            </div>
+
+            <button
+              onclick="openCheckoutModal()"
+              class="w-full bg-amber-500 hover:bg-amber-400 text-coffee-950 font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+            >
+              <span>Lanjut ke Pembayaran</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="checkoutModal"
+      class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div
+        class="fixed inset-0 bg-coffee-950/70 backdrop-blur-sm"
+        onclick="closeCheckoutModal()"
+      ></div>
+
+      <div
+        class="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-coffee-200 overflow-hidden z-10 my-8"
+      >
+        <!-- Modal Header -->
+        <div
+          class="p-5 bg-coffee-900 text-white flex items-center justify-between"
+        >
+          <div>
+            <h3 class="font-bold text-lg">Konfirmasi & Pembayaran</h3>
+            <p class="text-xs text-coffee-300">
+              Lengkapi data diri & pilih metode bayar
+            </p>
+          </div>
+          <button
+            onclick="closeCheckoutModal()"
+            class="text-coffee-300 hover:text-white"
+          >
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <form
+          id="checkoutForm"
+          onsubmit="handleCheckoutSubmit(event)"
+          class="p-6 space-y-5 max-h-[80vh] overflow-y-auto"
+        >
+          <!-- Customer Details -->
+          <div class="space-y-3">
+            <h4
+              class="text-xs font-bold text-coffee-700 uppercase tracking-wider border-b border-coffee-200 pb-1"
+            >
+              1. Informasi Pemesan
+            </h4>
+
+            <div>
+              <label class="block text-xs font-bold text-coffee-800 mb-1"
+                >Nama Lengkap *</label
+              >
+              <input
+                type="text"
+                id="custName"
+                required
+                placeholder="Contoh: Budi Santoso"
+                class="w-full bg-coffee-50 border border-coffee-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-coffee-500 outline-none"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-coffee-800 mb-1"
+                  >Nomor WhatsApp *</label
+                >
+                <input
+                  type="tel"
+                  id="custPhone"
+                  required
+                  placeholder="08123456789"
+                  class="w-full bg-coffee-50 border border-coffee-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-coffee-500 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-coffee-800 mb-1"
+                  id="labelTableOrAddress"
+                  >Nomor Meja *</label
+                >
+                <input
+                  type="text"
+                  id="custTable"
+                  required
+                  placeholder="Meja 04"
+                  class="w-full bg-coffee-50 border border-coffee-200 rounded-xl px-3.5 py-2 text-xs focus:ring-2 focus:ring-coffee-500 outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method Selection -->
+          <div class="space-y-3">
+            <h4
+              class="text-xs font-bold text-coffee-700 uppercase tracking-wider border-b border-coffee-200 pb-1"
+            >
+              2. Pilih Metode Pembayaran
+            </h4>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <!-- QRIS Option -->
+              <label
+                class="relative flex items-center p-3 border-2 rounded-2xl cursor-pointer hover:bg-coffee-50 transition-all border-coffee-200 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50"
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="qris"
+                  checked
+                  onclick="selectPayment('qris')"
+                  class="sr-only"
+                />
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-bold text-xs"
+                  >
+                    <i class="fa-solid fa-qrcode"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-xs text-coffee-900">QRIS Auto</p>
+                    <p class="text-[10px] text-coffee-500">
+                      Scan via Semua App
+                    </p>
+                  </div>
+                </div>
+              </label>
+
+              <!-- GoPay Option -->
+              <label
+                class="relative flex items-center p-3 border-2 rounded-2xl cursor-pointer hover:bg-coffee-50 transition-all border-coffee-200 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50"
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="gopay"
+                  onclick="selectPayment('gopay')"
+                  class="sr-only"
+                />
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs"
+                  >
+                    <i class="fa-solid fa-wallet"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-xs text-coffee-900">GoPay</p>
+                    <p class="text-[10px] text-coffee-500">Instant Wallet</p>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Bank Transfer Option -->
+              <label
+                class="relative flex items-center p-3 border-2 rounded-2xl cursor-pointer hover:bg-coffee-50 transition-all border-coffee-200 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50"
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="bank"
+                  onclick="selectPayment('bank')"
+                  class="sr-only"
+                />
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs"
+                  >
+                    <i class="fa-solid fa-building-columns"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-xs text-coffee-900">
+                      Transfer Bank
+                    </p>
+                    <p class="text-[10px] text-coffee-500">BCA / Mandiri</p>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Cash Option -->
+              <label
+                class="relative flex items-center p-3 border-2 rounded-2xl cursor-pointer hover:bg-coffee-50 transition-all border-coffee-200 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/50"
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cash"
+                  onclick="selectPayment('cash')"
+                  class="sr-only"
+                />
+                <div class="flex items-center gap-2.5">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs"
+                  >
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold text-xs text-coffee-900">
+                      Tunai / Cash
+                    </p>
+                    <p class="text-[10px] text-coffee-500">Bayar di Kasir</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Dynamic Payment Method Details Panel -->
+          <div
+            id="paymentDetailsBox"
+            class="p-4 bg-coffee-50 border border-coffee-200 rounded-2xl text-xs space-y-3"
+          >
+            <!-- Rendered dynamically depending on selected option -->
+          </div>
+
+          <!-- Total Summary Banner -->
+          <div
+            class="p-3.5 bg-coffee-900 text-white rounded-2xl flex items-center justify-between"
+          >
+            <div>
+              <p class="text-[10px] text-coffee-300">Total Tagihan Pesanan</p>
+              <p
+                class="text-base font-extrabold text-amber-400"
+                id="checkoutModalTotal"
+              >
+                Rp 0
+              </p>
+            </div>
+            <button
+              type="submit"
+              class="bg-amber-500 hover:bg-amber-400 text-coffee-950 font-bold px-5 py-2.5 rounded-xl transition-all shadow-md"
+            >
+              Proses Pesanan Sekarang
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="receiptModal"
+      class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md"></div>
+
+      <div
+        class="relative bg-white w-full max-w-md rounded-3xl shadow-2xl border border-coffee-200 overflow-hidden z-10 my-8"
+      >
+        <div id="printable-receipt" class="p-6 space-y-5">
+          <!-- Receipt Header -->
+          <div
+            class="text-center border-b border-dashed border-coffee-300 pb-4"
+          >
+            <div
+              class="w-12 h-12 bg-coffee-800 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl shadow-md"
+            >
+              <i class="fa-solid fa-mug-hot"></i>
+            </div>
+            <h3 class="font-serif font-extrabold text-lg text-coffee-900">
+              KOPI JALANAN UMKM
+            </h3>
+            <p class="text-[11px] text-coffee-600">
+              Jl. Pemuda No. 45, Surabaya | WA: 0812-3456-7890
+            </p>
+
+            <div
+              class="mt-3 inline-block bg-coffee-100 text-coffee-800 text-xs font-mono font-bold px-3 py-1 rounded-full border border-coffee-200"
+              id="receiptOrderId"
+            >
+              #KJL-0000
+            </div>
+          </div>
+
+          <!-- Dynamic Order Status Tracker -->
+          <div
+            class="no-print bg-coffee-50 p-4 rounded-2xl border border-coffee-200 space-y-2"
+          >
+            <div
+              class="flex justify-between items-center text-xs font-bold text-coffee-800 mb-1"
+            >
+              <span>Status Pesanan:</span>
+              <span
+                id="receiptStatusBadge"
+                class="bg-amber-500 text-coffee-950 px-2.5 py-0.5 rounded-full text-[10px]"
+                >Diproses Kasir</span
+              >
+            </div>
+
+            <!-- Progress Bar Steps -->
+            <div class="grid grid-cols-3 gap-1 pt-1 text-center text-[10px]">
+              <div
+                class="py-1 rounded bg-amber-500 text-white font-bold"
+                id="step1"
+              >
+                1. Diterima
+              </div>
+              <div
+                class="py-1 rounded bg-coffee-200 text-coffee-600"
+                id="step2"
+              >
+                2. Diseduh
+              </div>
+              <div
+                class="py-1 rounded bg-coffee-200 text-coffee-600"
+                id="step3"
+              >
+                3. Siap
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Info Summary -->
+          <div
+            class="text-xs space-y-1 bg-coffee-50/50 p-3 rounded-xl border border-coffee-100"
+          >
+            <div class="flex justify-between">
+              <span class="text-coffee-500">Pemesan:</span
+              ><span class="font-bold text-coffee-900" id="receiptCustName"
+                >-</span
+              >
+            </div>
+            <div class="flex justify-between">
+              <span class="text-coffee-500">Tipe Pesanan:</span
+              ><span class="font-bold text-coffee-900" id="receiptType">-</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-coffee-500">Meja/Lokasi:</span
+              ><span class="font-bold text-coffee-900" id="receiptTable"
+                >-</span
+              >
+            </div>
+            <div class="flex justify-between">
+              <span class="text-coffee-500">Metode Bayar:</span
+              ><span
+                class="font-bold text-coffee-900 uppercase"
+                id="receiptPayment"
+                >-</span
+              >
+            </div>
+          </div>
+
+          <!-- Items Purchased Table -->
+          <div class="space-y-2">
+            <h4
+              class="text-xs font-bold text-coffee-800 uppercase tracking-wider"
+            >
+              Rincian Item
+            </h4>
+            <div
+              id="receiptItemList"
+              class="text-xs space-y-2 border-t border-b border-coffee-200 py-3"
+            >
+              <!-- Dynamic items -->
+            </div>
+          </div>
+
+          <!-- Receipt Total -->
+          <div class="space-y-1 text-xs pt-1">
+            <div
+              class="flex justify-between font-extrabold text-sm text-coffee-900"
+            >
+              <span>TOTAL BAYAR</span>
+              <span id="receiptTotalAmount" class="text-amber-600 font-mono"
+                >Rp 0</span
+              >
+            </div>
+          </div>
+
+          <!-- Receipt Bottom Note -->
+          <p class="text-[10px] text-center text-coffee-500 pt-2 italic">
+            Terima kasih telah mendukung UMKM Kopi Jalanan. <br />
+            Simpan struk digital ini sebagai bukti pemesanan.
+          </p>
+        </div>
+
+        <!-- Receipt Modal Actions -->
+        <div
+          class="no-print p-4 bg-coffee-50 border-t border-coffee-200 flex flex-col sm:flex-row gap-2"
+        >
+          <button
+            onclick="window.print()"
+            class="flex-1 bg-coffee-800 hover:bg-coffee-900 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-print"></i>
+            <span>Cetak Struk / PDF</span>
+          </button>
+          <button
+            onclick="finishOrderAndClose()"
+            class="flex-1 bg-amber-500 hover:bg-amber-400 text-coffee-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"
+          >
+            <span>Selesai & Pesan Lagi</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="addMenuModal"
+      class="fixed inset-0 z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="fixed inset-0 bg-coffee-950/70 backdrop-blur-sm"
+        onclick="closeAddMenuModal()"
+      ></div>
+
+      <div
+        class="relative bg-white w-full max-w-md rounded-3xl shadow-2xl border border-coffee-200 overflow-hidden z-10"
+      >
+        <div
+          class="p-5 bg-coffee-900 text-white flex items-center justify-between"
+        >
+          <h3 class="font-bold text-base">Tambah Menu Kopi Baru</h3>
+          <button
+            onclick="closeAddMenuModal()"
+            class="text-coffee-300 hover:text-white"
+          >
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <form
+          onsubmit="handleAddMenuSubmit(event)"
+          class="p-6 space-y-4 text-xs"
+        >
+          <div>
+            <label class="block font-bold text-coffee-800 mb-1"
+              >Nama Menu *</label
+            >
+            <input
+              type="text"
+              id="newMenuName"
+              required
+              placeholder="Contoh: Kopi Susu Aren Double Shot"
+              class="w-full bg-coffee-50 border border-coffee-200 rounded-xl p-2.5 focus:ring-2 focus:ring-coffee-500 outline-none"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-coffee-800 mb-1"
+                >Kategori *</label
+              >
+              <select
+                id="newMenuCategory"
+                class="w-full bg-coffee-50 border border-coffee-200 rounded-xl p-2.5 focus:ring-2 focus:ring-coffee-500 outline-none"
+              >
+                <option value="kopi">Kopi</option>
+                <option value="non-kopi">Non-Kopi</option>
+                <option value="makanan">Makanan / Snack</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-coffee-800 mb-1"
+                >Harga (Rp) *</label
+              >
+              <input
+                type="number"
+                id="newMenuPrice"
+                required
+                placeholder="18000"
+                class="w-full bg-coffee-50 border border-coffee-200 rounded-xl p-2.5 focus:ring-2 focus:ring-coffee-500 outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-coffee-800 mb-1"
+              >Deskripsi Singkat</label
+            >
+            <textarea
+              id="newMenuDesc"
+              rows="2"
+              placeholder="Racikan kopi espresso mantap dengan gula aren asli..."
+              class="w-full bg-coffee-50 border border-coffee-200 rounded-xl p-2.5 focus:ring-2 focus:ring-coffee-500 outline-none"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block font-bold text-coffee-800 mb-1"
+              >URL Gambar (Opsional)</label
+            >
+            <input
+              type="url"
+              id="newMenuImg"
+              placeholder="https://images.unsplash.com/..."
+              class="w-full bg-coffee-50 border border-coffee-200 rounded-xl p-2.5 focus:ring-2 focus:ring-coffee-500 outline-none"
+            />
+          </div>
+
+          <div>
+            <label class="block font-bold text-coffee-800 mb-1"
+              >Badge Tag</label
+            >
+            <input
+              type="text"
+              id="newMenuBadge"
+              placeholder="Contoh: Best Seller / Baru"
+              class="w-full bg-coffee-50 border border-coffee-200 rounded-xl p-2.5 focus:ring-2 focus:ring-coffee-500 outline-none"
+            />
+          </div>
+
+          <div class="pt-2">
+            <button
+              type="submit"
+              class="w-full bg-amber-500 hover:bg-amber-400 text-coffee-950 font-bold py-3 rounded-xl transition-all shadow-md"
+            >
+              Simpan & Publikasikan ke Menu
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="gofoodModal"
+      class="fixed inset-0 z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="fixed inset-0 bg-coffee-950/70 backdrop-blur-sm"
+        onclick="closeGoFoodModal()"
+      ></div>
+
+      <div
+        class="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-coffee-200 p-6 z-10 text-center space-y-4"
+      >
+        <div
+          class="w-16 h-16 bg-gofood text-white rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-lg shadow-gofood/30"
+        >
+          <i class="fa-solid fa-motorcycle"></i>
+        </div>
+
+        <div>
+          <span
+            class="bg-gofood/10 text-gofood text-[10px] font-extrabold px-3 py-1 rounded-full uppercase"
+            >Official Merchant</span
+          >
+          <h3 class="font-bold text-lg text-coffee-900 mt-2">
+            Kopi Jalanan di GoFood
+          </h3>
+          <p class="text-xs text-coffee-600 mt-1 leading-relaxed">
+            Anda akan dialihkan ke aplikasi GoFood untuk memesan menu via Driver
+            Gojek.
+          </p>
+        </div>
+
+        <div
+          class="bg-coffee-50 p-3 rounded-2xl border border-coffee-200 text-left text-xs space-y-1"
+        >
+          <div class="flex justify-between font-medium">
+            <span>Promo Aktif:</span
+            ><span class="text-gofood font-bold">Diskon 20%</span>
+          </div>
+          <div class="flex justify-between font-medium">
+            <span>Estimasi Pengiriman:</span><span>15 - 25 Menit</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2">
+          <a
+            href="https://gofood.co.id"
+            target="_blank"
+            rel="noopener noreferrer"
+            onclick="closeGoFoodModal()"
+            class="block w-full bg-gofood hover:bg-gofoodDark text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md"
+          >
+            Buka Aplikasi GoFood Sekarang
+          </a>
+          <button
+            onclick="closeGoFoodModal()"
+            class="w-full bg-coffee-100 text-coffee-800 font-bold py-2.5 rounded-xl text-xs hover:bg-coffee-200"
+          >
+            Kembali ke Pesan Direct
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="toastContainer"
+      class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"
+    ></div>
+
+    <script>
+      /* ------------------------------------------------------------------ */
+      /* INITIAL MENU DATA & STATE                                          */
+      /* ------------------------------------------------------------------ */
+      let menuData = [
+        {
+          id: 1,
+          name: "Es Kopi Susu Gula Aren",
+          category: "kopi",
+          price: 18000,
+          image:
+            "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Espresso robusta racikan khas diseduh dengan gula aren murni dan susu segar.",
+          badge: "Best Seller",
+          available: true,
+        },
+        {
+          id: 2,
+          name: "Kopi Tubruk Arabika Malabar",
+          category: "kopi",
+          price: 15000,
+          image:
+            "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Biji kopi single origin Malabar diseduh tradisional dengan aroma floral khas.",
+          badge: "Rekomendasi",
+          available: true,
+        },
+        {
+          id: 3,
+          name: "Americano Ice Cold Brew",
+          category: "kopi",
+          price: 16000,
+          image:
+            "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Espresso ganda disajikan dingin segar tanpa manis gula.",
+          badge: "",
+          available: true,
+        },
+        {
+          id: 4,
+          name: "Matcha Cream Latte",
+          category: "non-kopi",
+          price: 20000,
+          image:
+            "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Bubuk matcha jepang asli dipadu creamy milk manis lembut.",
+          badge: "Favorit",
+          available: true,
+        },
+        {
+          id: 5,
+          name: "Cokelat Pandan Cream",
+          category: "non-kopi",
+          price: 19000,
+          image:
+            "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Minuman cokelat kaya rasa dengan sentuhan aroma daun pandan wangi.",
+          badge: "",
+          available: true,
+        },
+        {
+          id: 6,
+          name: "Roti Bakar Cokelat Keju",
+          category: "makanan",
+          price: 15000,
+          image:
+            "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Roti tawar tebal dipanggang renyah dengan keju parut & cokelat melimpah.",
+          badge: "Snack Hitz",
+          available: true,
+        },
+        {
+          id: 7,
+          name: "Cireng Bumbu Rujak Pedas",
+          category: "makanan",
+          price: 12000,
+          image:
+            "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Cireng kenyal crispy disajikan panas dengan saus rujak manis pedas.",
+          badge: "",
+          available: true,
+        },
+        {
+          id: 8,
+          name: "Avocado Espresso Float",
+          category: "kopi",
+          price: 22000,
+          image:
+            "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=600&q=80",
+          description:
+            "Jus alpukat manis ditimpa espresso shot dan es krim vanilla manis.",
+          badge: "Spesial",
+          available: true,
+        },
+      ];
+
+      let cart = [];
+      let activeCategory = "all";
+      let orderType = "dine-in"; // 'dine-in' or 'takeaway'
+      let paymentMethod = "qris";
+      let ordersList = [];
+      let viewMode = "customer"; // 'customer' or 'admin'
+
+      /* ------------------------------------------------------------------ */
+      /* UI UTILITIES & FORMATTING                                          */
+      /* ------------------------------------------------------------------ */
+      function formatRupiah(amount) {
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          maximumFractionDigits: 0,
+        }).format(amount);
+      }
+
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+
+        const bgColor =
+          type === "success"
+            ? "bg-coffee-900 text-white border-amber-500"
+            : "bg-red-600 text-white border-red-800";
+        const icon =
+          type === "success"
+            ? "fa-circle-check text-amber-400"
+            : "fa-triangle-exclamation";
+
+        toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border ${bgColor} text-xs font-bold transition-all transform translate-y-2 opacity-0 duration-300`;
+        toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.classList.remove("translate-y-2", "opacity-0");
+        }, 10);
+
+        setTimeout(() => {
+          toast.classList.add("opacity-0", "translate-y-2");
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* VIEW & TAB SWITCHING                                               */
+      /* ------------------------------------------------------------------ */
+      function switchView(mode) {
+        viewMode = mode;
+        const customerView = document.getElementById("customerView");
+        const adminView = document.getElementById("adminView");
+        const modeText = document.getElementById("viewModeText");
+
+        if (mode === "admin") {
+          customerView.classList.add("hidden");
+          adminView.classList.remove("hidden");
+          modeText.innerText = "Mode Toko Pelanggan";
+          renderAdminOrders();
+          renderAdminMenuTable();
+          updateAdminStats();
+        } else {
+          adminView.classList.add("hidden");
+          customerView.classList.remove("hidden");
+          modeText.innerText = "Mode Kasir/Admin";
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function toggleAdminMode() {
+        if (viewMode === "customer") {
+          switchView("admin");
+          showToast("Beralih ke Dashboard Admin/Kasir");
+        } else {
+          switchView("customer");
+          showToast("Kembali ke Tampilan Toko Pelanggan");
+        }
+      }
+
+      function switchAdminTab(tab) {
+        const tabOrders = document.getElementById("adminTabOrders");
+        const tabMenu = document.getElementById("adminTabMenu");
+        const btnOrders = document.getElementById("tab-orders-btn");
+        const btnMenu = document.getElementById("tab-menu-btn");
+
+        if (tab === "orders") {
+          tabOrders.classList.remove("hidden");
+          tabMenu.classList.add("hidden");
+          btnOrders.className =
+            "py-3 px-6 text-sm font-bold border-b-2 border-coffee-800 text-coffee-900 flex items-center gap-2 transition-all";
+          btnMenu.className =
+            "py-3 px-6 text-sm font-bold border-b-2 border-transparent text-coffee-600 hover:text-coffee-900 flex items-center gap-2 transition-all";
+        } else {
+          tabMenu.classList.remove("hidden");
+          tabOrders.classList.add("hidden");
+          btnMenu.className =
+            "py-3 px-6 text-sm font-bold border-b-2 border-coffee-800 text-coffee-900 flex items-center gap-2 transition-all";
+          btnOrders.className =
+            "py-3 px-6 text-sm font-bold border-b-2 border-transparent text-coffee-600 hover:text-coffee-900 flex items-center gap-2 transition-all";
+        }
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* MENU FILTERING & RENDERING                                         */
+      /* ------------------------------------------------------------------ */
+      function renderMenu() {
+        const grid = document.getElementById("menuGrid");
+        const emptyState = document.getElementById("emptyMenuState");
+        const searchQuery = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+
+        let filtered = menuData.filter((item) => {
+          const matchesCat =
+            activeCategory === "all" || item.category === activeCategory;
+          const matchesSearch =
+            item.name.toLowerCase().includes(searchQuery) ||
+            item.description.toLowerCase().includes(searchQuery);
+          return matchesCat && matchesSearch;
+        });
+
+        // Update category counter badges
+        document.getElementById("count-all").innerText = menuData.length;
+        document.getElementById("count-kopi").innerText = menuData.filter(
+          (i) => i.category === "kopi",
+        ).length;
+        document.getElementById("count-non-kopi").innerText = menuData.filter(
+          (i) => i.category === "non-kopi",
+        ).length;
+        document.getElementById("count-makanan").innerText = menuData.filter(
+          (i) => i.category === "makanan",
+        ).length;
+
+        if (filtered.length === 0) {
+          grid.innerHTML = "";
+          emptyState.classList.remove("hidden");
+          return;
+        } else {
+          emptyState.classList.add("hidden");
+        }
+
+        grid.innerHTML = filtered
+          .map(
+            (item) => `
+                <div class="bg-white rounded-3xl overflow-hidden border border-coffee-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group ${!item.available ? "opacity-60 grayscale" : ""}">
+                    <!-- Image Wrapper -->
+                    <div class="relative h-48 overflow-hidden bg-coffee-100">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600'">
+                        
+                        ${
+                          item.badge
+                            ? `
+                            <span class="absolute top-3 left-3 bg-coffee-900/90 text-amber-400 border border-amber-400/30 text-[10px] font-extrabold px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-wider">
+                                ✨ ${item.badge}
+                            </span>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          !item.available
+                            ? `
+                            <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+                                <span class="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Stok Habis</span>
+                            </div>
+                        `
+                            : ""
+                        }
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-5 flex flex-col flex-grow justify-between space-y-3">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-coffee-500 bg-coffee-100 px-2 py-0.5 rounded-md">
+                                    ${item.category}
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-coffee-900 text-base group-hover:text-amber-700 transition-colors">${item.name}</h3>
+                            <p class="text-xs text-coffee-600 line-clamp-2 mt-1 leading-relaxed font-light">${item.description}</p>
+                        </div>
+
+                        <div class="pt-2 border-t border-coffee-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-coffee-400 block font-medium">Harga</span>
+                                <span class="font-bold text-coffee-900 text-base font-mono">${formatRupiah(item.price)}</span>
+                            </div>
+
+                            <button onclick="addToCart(${item.id})" ${!item.available ? "disabled" : ""} 
+                                    class="bg-coffee-800 hover:bg-amber-600 disabled:bg-gray-300 text-white p-2.5 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center">
+                                <i class="fa-solid fa-plus text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function setCategory(cat) {
+        activeCategory = cat;
+        document.querySelectorAll(".category-btn").forEach((btn) => {
+          btn.className =
+            "category-btn bg-white hover:bg-coffee-200/60 text-coffee-800 border border-coffee-200 font-semibold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all";
+        });
+        const activeBtn = document.getElementById(`cat-${cat}`);
+        if (activeBtn) {
+          activeBtn.className =
+            "category-btn active bg-coffee-800 text-white font-semibold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap shadow-sm transition-all";
+        }
+        renderMenu();
+      }
+
+      function filterMenu() {
+        renderMenu();
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* SHOPPING CART MANAGEMENT                                           */
+      /* ------------------------------------------------------------------ */
+      function addToCart(menuId) {
+        const item = menuData.find((m) => m.id === menuId);
+        if (!item || !item.available) return;
+
+        const existing = cart.find((c) => c.id === menuId);
+        if (existing) {
+          existing.qty++;
+        } else {
+          cart.push({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            qty: 1,
+            note: "",
+          });
+        }
+
+        updateCartUI();
+        showToast(`${item.name} ditambahkan ke keranjang`);
+      }
+
+      function updateCartQty(menuId, delta) {
+        const index = cart.findIndex((c) => c.id === menuId);
+        if (index !== -1) {
+          cart[index].qty += delta;
+          if (cart[index].qty <= 0) {
+            cart.splice(index, 1);
+          }
+        }
+        updateCartUI();
+      }
+
+      function updateCartNote(menuId, noteText) {
+        const item = cart.find((c) => c.id === menuId);
+        if (item) {
+          item.note = noteText;
+        }
+      }
+
+      function setOrderType(type) {
+        orderType = type;
+        const btnD = document.getElementById("btnDineIn");
+        const btnT = document.getElementById("btnTakeaway");
+        const labelTable = document.getElementById("labelTableOrAddress");
+
+        if (type === "dine-in") {
+          btnD.className =
+            "flex-1 py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all bg-coffee-800 text-white border-coffee-800";
+          btnT.className =
+            "flex-1 py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all bg-white text-coffee-800 border-coffee-300 hover:bg-coffee-50";
+          if (labelTable) labelTable.innerText = "Nomor Meja *";
+        } else {
+          btnT.className =
+            "flex-1 py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all bg-coffee-800 text-white border-coffee-800";
+          btnD.className =
+            "flex-1 py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all bg-white text-coffee-800 border-coffee-300 hover:bg-coffee-50";
+          if (labelTable) labelTable.innerText = "Catatan Pengambilan/Alamat *";
+        }
+      }
+
+      function updateCartUI() {
+        const cartItemsList = document.getElementById("cartItemsList");
+        const cartBadgeCount = document.getElementById("cartBadgeCount");
+        const cartHeaderTotal = document.getElementById("cartHeaderTotal");
+        const cartSubtotal = document.getElementById("cartSubtotal");
+        const cartTotal = document.getElementById("cartTotal");
+
+        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+        const totalPrice = cart.reduce(
+          (sum, item) => sum + item.price * item.qty,
+          0,
+        );
+
+        cartBadgeCount.innerText = totalQty;
+        cartHeaderTotal.innerText = formatRupiah(totalPrice);
+        cartSubtotal.innerText = formatRupiah(totalPrice);
+        cartTotal.innerText = formatRupiah(totalPrice);
+
+        if (cart.length === 0) {
+          cartItemsList.innerHTML = `
+                    <div class="text-center py-12 text-coffee-400">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-3"></i>
+                        <p class="font-bold text-sm text-coffee-800">Keranjang Masih Kosong</p>
+                        <p class="text-xs text-coffee-500 mt-1">Silakan pilih menu lezat favorit Anda!</p>
+                    </div>
+                `;
+          return;
+        }
+
+        cartItemsList.innerHTML = cart
+          .map(
+            (item) => `
+                <div class="bg-white p-3.5 rounded-2xl border border-coffee-200 shadow-sm space-y-2">
+                    <div class="flex items-center gap-3">
+                        <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover" onerror="this.src='https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=100'">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-xs text-coffee-900 truncate">${item.name}</h4>
+                            <p class="text-xs font-mono font-semibold text-coffee-600">${formatRupiah(item.price)}</p>
+                        </div>
+                        
+                        <!-- Qty adjustment controls -->
+                        <div class="flex items-center gap-2 bg-coffee-100 p-1 rounded-xl">
+                            <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 rounded-lg bg-white text-coffee-900 font-bold flex items-center justify-center text-xs shadow-sm hover:bg-red-50 hover:text-red-600 transition-colors">
+                                -
+                            </button>
+                            <span class="text-xs font-extrabold text-coffee-900 w-4 text-center">${item.qty}</span>
+                            <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 rounded-lg bg-white text-coffee-900 font-bold flex items-center justify-center text-xs shadow-sm hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Item Notes -->
+                    <input type="text" value="${item.note || ""}" onchange="updateCartNote(${item.id}, this.value)" 
+                           placeholder="Catatan (misal: Less sugar, extra es...)" 
+                           class="w-full bg-coffee-50/80 border border-coffee-200 rounded-lg px-2.5 py-1 text-[11px] text-coffee-800 focus:outline-none focus:ring-1 focus:ring-coffee-500">
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function openCartDrawer() {
+        document.getElementById("cartDrawer").classList.remove("hidden");
+      }
+
+      function closeCartDrawer() {
+        document.getElementById("cartDrawer").classList.add("hidden");
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* CHECKOUT & PAYMENT WORKFLOW                                        */
+      /* ------------------------------------------------------------------ */
+      function openCheckoutModal() {
+        if (cart.length === 0) {
+          showToast("Keranjang Anda masih kosong!", "error");
+          return;
+        }
+        closeCartDrawer();
+        const totalPrice = cart.reduce(
+          (sum, item) => sum + item.price * item.qty,
+          0,
+        );
+        document.getElementById("checkoutModalTotal").innerText =
+          formatRupiah(totalPrice);
+        selectPayment(paymentMethod);
+        document.getElementById("checkoutModal").classList.remove("hidden");
+      }
+
+      function closeCheckoutModal() {
+        document.getElementById("checkoutModal").classList.add("hidden");
+      }
+
+      function selectPayment(method) {
+        paymentMethod = method;
+        const detailsBox = document.getElementById("paymentDetailsBox");
+        const totalPrice = cart.reduce(
+          (sum, item) => sum + item.price * item.qty,
+          0,
+        );
+
+        if (method === "qris") {
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=KOPIJALANAN-PAYMENT-${totalPrice}`;
+          detailsBox.innerHTML = `
+                    <div class="text-center space-y-2">
+                        <p class="font-bold text-coffee-900 text-xs">Scan QRIS Nasional dengan GoPay, OVO, Dana, ShopeePay / Mobile Banking:</p>
+                        <div class="bg-white p-3 rounded-2xl border border-coffee-200 inline-block shadow-sm">
+                            <img src="${qrUrl}" alt="QRIS Code" class="w-36 h-36 mx-auto">
+                        </div>
+                        <p class="text-[10px] text-coffee-500">Sistem otomatis memverifikasi pembayaran setelah transaksi selesai.</p>
+                    </div>
+                `;
+        } else if (method === "gopay") {
+          detailsBox.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="font-bold text-coffee-900">Pembayaran Instan GoPay</p>
+                        <p class="text-coffee-600">Tekan tombol bayar untuk membuka aplikasi Gojek secara otomatis.</p>
+                        <div class="bg-emerald-50 text-emerald-800 p-2.5 rounded-xl border border-emerald-200 flex items-center justify-between">
+                            <span>Akun Merchant UMKM:</span>
+                            <span class="font-bold font-mono">KOPI JALANAN SURABAYA</span>
+                        </div>
+                    </div>
+                `;
+        } else if (method === "bank") {
+          detailsBox.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="font-bold text-coffee-900">Transfer Rekening Bank UMKM:</p>
+                        <div class="bg-white p-3 rounded-xl border border-coffee-200 space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-blue-800">BCA: 8830-1928-31</span>
+                                <button type="button" onclick="copyToClipboard('8830192831')" class="bg-coffee-100 text-coffee-800 px-2 py-0.5 rounded text-[10px] font-bold">Salin</button>
+                            </div>
+                            <p class="text-[10px] text-coffee-500">a.n Kopi Jalanan UMKM Indonesia</p>
+                        </div>
+                    </div>
+                `;
+        } else if (method === "cash") {
+          detailsBox.innerHTML = `
+                    <div class="space-y-1 text-coffee-800">
+                        <p class="font-bold">Pembayaran Tunai di Kasir</p>
+                        <p class="text-coffee-600">Silakan tunjukkan struk pemesanan ini kepada kasir Kopi Jalanan untuk melakukan pembayaran langsung.</p>
+                    </div>
+                `;
+        }
+      }
+
+      function copyToClipboard(text) {
+        const tempInput = document.createElement("input");
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        showToast("Nomor rekening berhasil disalin!");
+      }
+
+      function handleCheckoutSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById("custName").value.trim();
+        const phone = document.getElementById("custPhone").value.trim();
+        const table = document.getElementById("custTable").value.trim();
+
+        if (!name || !phone || !table) {
+          showToast("Harap isi semua informasi pemesan!", "error");
+          return;
+        }
+
+        const totalPrice = cart.reduce(
+          (sum, item) => sum + item.price * item.qty,
+          0,
+        );
+        const orderId = "#KJL-" + Math.floor(1000 + Math.random() * 9000);
+
+        const newOrder = {
+          id: orderId,
+          custName: name,
+          custPhone: phone,
+          custTable: table,
+          orderType: orderType,
+          paymentMethod: paymentMethod,
+          items: [...cart],
+          total: totalPrice,
+          status: "Diproses", // 'Diproses', 'Diseduh', 'Selesai'
+          timestamp: new Date().toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+
+        ordersList.unshift(newOrder);
+        closeCheckoutModal();
+        showReceiptModal(newOrder);
+
+        // Clear Cart
+        cart = [];
+        updateCartUI();
+        updateAdminStats();
+        renderAdminOrders();
+
+        showToast("Pesanan berhasil dibuat!");
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* ORDER RECEIPT & SIMULATION                                         */
+      /* ------------------------------------------------------------------ */
+      function showReceiptModal(order) {
+        document.getElementById("receiptOrderId").innerText = order.id;
+        document.getElementById("receiptCustName").innerText = order.custName;
+        document.getElementById("receiptType").innerText =
+          order.orderType === "dine-in"
+            ? "Makan di Tempat"
+            : "Bungkus / Takeaway";
+        document.getElementById("receiptTable").innerText = order.custTable;
+        document.getElementById("receiptPayment").innerText =
+          order.paymentMethod;
+        document.getElementById("receiptTotalAmount").innerText = formatRupiah(
+          order.total,
+        );
+
+        const list = document.getElementById("receiptItemList");
+        list.innerHTML = order.items
+          .map(
+            (i) => `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="font-bold text-coffee-900">${i.qty}x ${i.name}</span>
+                        ${i.note ? `<p class="text-[10px] text-coffee-500 italic">Catatan: ${i.note}</p>` : ""}
+                    </div>
+                    <span class="font-mono text-coffee-800 font-semibold">${formatRupiah(i.price * i.qty)}</span>
+                </div>
+            `,
+          )
+          .join("");
+
+        document.getElementById("receiptModal").classList.remove("hidden");
+      }
+
+      function finishOrderAndClose() {
+        document.getElementById("receiptModal").classList.add("hidden");
+        showToast("Terima kasih atas pesanan Anda!");
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* ADMIN PANEL CONTROLLERS                                            */
+      /* ------------------------------------------------------------------ */
+      function renderAdminOrders() {
+        const container = document.getElementById("adminOrdersContainer");
+
+        if (ordersList.length === 0) {
+          container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-2xl border border-coffee-200">
+                        <i class="fa-solid fa-receipt text-3xl text-coffee-300 mb-2"></i>
+                        <p class="font-bold text-sm text-coffee-800">Belum Ada Pesanan Masuk</p>
+                        <p class="text-xs text-coffee-500 mt-1">Pesanan dari pelanggan akan tampil di sini secara otomatis.</p>
+                    </div>
+                `;
+          return;
+        }
+
+        container.innerHTML = ordersList
+          .map(
+            (order) => `
+                <div class="bg-white p-5 rounded-2xl border border-coffee-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-2 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-coffee-900 text-sm bg-coffee-100 px-2.5 py-0.5 rounded-lg border border-coffee-200">${order.id}</span>
+                            <span class="text-xs font-bold ${order.orderType === "dine-in" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"} px-2.5 py-0.5 rounded-full uppercase">
+                                ${order.orderType === "dine-in" ? "Meja: " + order.custTable : "Takeaway"}
+                            </span>
+                            <span class="text-xs text-coffee-500 font-medium">🕒 ${order.timestamp}</span>
+                        </div>
+
+                        <div>
+                            <p class="font-bold text-coffee-900 text-sm">${order.custName} <span class="text-xs text-coffee-500 font-normal">(${order.custPhone})</span></p>
+                            <p class="text-xs text-coffee-600 mt-0.5">
+                                ${order.items.map((i) => `${i.qty}x ${i.name}`).join(", ")}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 pt-3 md:pt-0 border-t md:border-t-0 border-coffee-100">
+                        <div class="text-left md:text-right">
+                            <p class="text-[10px] text-coffee-500">Total Tagihan (${order.paymentMethod.toUpperCase()})</p>
+                            <p class="font-bold text-coffee-900 text-sm font-mono">${formatRupiah(order.total)}</p>
+                        </div>
+
+                        <!-- Status Action Controls -->
+                        <div class="flex items-center gap-2">
+                            ${
+                              order.status === "Diproses"
+                                ? `
+                                <button onclick="updateOrderStatus('${order.id}', 'Diseduh')" class="bg-amber-500 hover:bg-amber-400 text-coffee-950 font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm">
+                                    Seduh Kopi ☕
+                                </button>
+                            `
+                                : order.status === "Diseduh"
+                                  ? `
+                                <button onclick="updateOrderStatus('${order.id}', 'Selesai')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm">
+                                    Sajikan Pesanan ✅
+                                </button>
+                            `
+                                  : `
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Selesai</span>
+                            `
+                            }
+                        </div>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function updateOrderStatus(orderId, newStatus) {
+        const order = ordersList.find((o) => o.id === orderId);
+        if (order) {
+          order.status = newStatus;
+          renderAdminOrders();
+          updateAdminStats();
+          showToast(`Status Pesanan ${orderId} diubah ke ${newStatus}`);
+        }
+      }
+
+      function renderAdminMenuTable() {
+        const tbody = document.getElementById("adminMenuTable");
+        tbody.innerHTML = menuData
+          .map(
+            (item) => `
+                <tr class="hover:bg-coffee-50/50 transition-colors">
+                    <td class="py-3 px-4 font-bold text-coffee-900 flex items-center gap-2">
+                        <img src="${item.image}" class="w-8 h-8 rounded-lg object-cover" onerror="this.src='https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=50'">
+                        <span>${item.name}</span>
+                    </td>
+                    <td class="py-3 px-4 uppercase text-coffee-600 font-semibold">${item.category}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-coffee-900">${formatRupiah(item.price)}</td>
+                    <td class="py-3 px-4">
+                        <button onclick="toggleItemStock(${item.id})" class="px-2.5 py-1 rounded-full font-bold text-[10px] ${item.available ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}">
+                            ${item.available ? "Ready / Tersedia" : "Habis"}
+                        </button>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="deleteMenuItem(${item.id})" class="text-red-500 hover:text-red-700 p-1">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      function toggleItemStock(id) {
+        const item = menuData.find((m) => m.id === id);
+        if (item) {
+          item.available = !item.available;
+          renderAdminMenuTable();
+          renderMenu();
+          updateAdminStats();
+          showToast(`Stok ${item.name} diperbarui`);
+        }
+      }
+
+      function deleteMenuItem(id) {
+        menuData = menuData.filter((m) => m.id !== id);
+        renderAdminMenuTable();
+        renderMenu();
+        updateAdminStats();
+        showToast("Menu berhasil dihapus!");
+      }
+
+      function updateAdminStats() {
+        document.getElementById("statTotalOrders").innerText =
+          ordersList.length;
+        const revenue = ordersList.reduce((sum, o) => sum + o.total, 0);
+        document.getElementById("statTotalRevenue").innerText =
+          formatRupiah(revenue);
+        const pending = ordersList.filter((o) => o.status !== "Selesai").length;
+        document.getElementById("statPendingOrders").innerText = pending;
+        document.getElementById("statActiveMenuItems").innerText =
+          menuData.filter((m) => m.available).length;
+
+        const pendingBadge = document.getElementById("pendingBadge");
+        if (pending > 0) {
+          pendingBadge.innerText = pending;
+          pendingBadge.classList.remove("hidden");
+        } else {
+          pendingBadge.classList.add("hidden");
+        }
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* ADD NEW MENU MODAL CONTROLLER                                      */
+      /* ------------------------------------------------------------------ */
+      function openAddMenuModal() {
+        document.getElementById("addMenuModal").classList.remove("hidden");
+      }
+
+      function closeAddMenuModal() {
+        document.getElementById("addMenuModal").classList.add("hidden");
+      }
+
+      function handleAddMenuSubmit(e) {
+        e.preventDefault();
+        const name = document.getElementById("newMenuName").value.trim();
+        const category = document.getElementById("newMenuCategory").value;
+        const price = parseInt(document.getElementById("newMenuPrice").value);
+        const desc = document.getElementById("newMenuDesc").value.trim();
+        let img = document.getElementById("newMenuImg").value.trim();
+        const badge = document.getElementById("newMenuBadge").value.trim();
+
+        if (!img) {
+          img =
+            "https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=600&q=80";
+        }
+
+        const newItem = {
+          id: Date.now(),
+          name: name,
+          category: category,
+          price: price,
+          image: img,
+          description: desc || "Minuman/snack khas sajian Kopi Jalanan.",
+          badge: badge,
+          available: true,
+        };
+
+        menuData.unshift(newItem);
+        renderMenu();
+        renderAdminMenuTable();
+        updateAdminStats();
+        closeAddMenuModal();
+        showToast(`Menu ${name} berhasil ditambahkan!`);
+
+        // Reset Form
+        e.target.reset();
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* GOFOOD MODAL CONTROLLERS                                           */
+      /* ------------------------------------------------------------------ */
+      function openGoFoodModal() {
+        document.getElementById("gofoodModal").classList.remove("hidden");
+      }
+
+      function closeGoFoodModal() {
+        document.getElementById("gofoodModal").classList.add("hidden");
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* INITIALIZATION ON WINDOW LOAD                                      */
+      /* ------------------------------------------------------------------ */
+      window.onload = function () {
+        renderMenu();
+        updateCartUI();
+      };
+    </script>
+  </body>
+</html>
